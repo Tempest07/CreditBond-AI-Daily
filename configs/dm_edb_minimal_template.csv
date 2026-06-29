@@ -1,0 +1,2 @@
+indicator_id,alias,frequency,start_date,end_date,notes
+M00100066100000,示例指标,月,2020-01-01,2026-06-23,把这里替换成 dm-fetch-codes 返回的真实指标ID

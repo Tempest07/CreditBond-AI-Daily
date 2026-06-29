@@ -1,0 +1,58 @@
+{
+  "classification_report": {
+    "看空": {
+      "precision": 0.3898305084745763,
+      "recall": 0.6052631578947368,
+      "f1-score": 0.4742268041237113,
+      "support": 38.0
+    },
+    "看多": {
+      "precision": 0.14942528735632185,
+      "recall": 0.9629629629629629,
+      "f1-score": 0.25870646766169153,
+      "support": 27.0
+    },
+    "震荡": {
+      "precision": 1.0,
+      "recall": 0.023255813953488372,
+      "f1-score": 0.045454545454545456,
+      "support": 172.0
+    },
+    "accuracy": 0.22362869198312235,
+    "macro avg": {
+      "precision": 0.5130852652769661,
+      "recall": 0.530493978270396,
+      "f1-score": 0.2594626057466494,
+      "support": 237.0
+    },
+    "weighted avg": {
+      "precision": 0.8052660003403147,
+      "recall": 0.22362869198312235,
+      "f1-score": 0.13849736287657602,
+      "support": 237.0
+    }
+  },
+  "confusion_matrix": [
+    [
+      23,
+      15,
+      0
+    ],
+    [
+      1,
+      26,
+      0
+    ],
+    [
+      35,
+      133,
+      4
+    ]
+  ],
+  "backtest": {
+    "total_return_proxy": 0.2106359999999997,
+    "mean_active_return_proxy": 0.0009040171673819729,
+    "active_signal_ratio": 0.9831223628691983,
+    "positive_active_ratio": 0.5965665236051502
+  }
+}

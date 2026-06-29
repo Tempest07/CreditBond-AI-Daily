@@ -1,0 +1,59 @@
+﻿name: Daily CreditBond AI Report
+
+on:
+  workflow_dispatch:
+  schedule:
+    # UTC 00:00 = Beijing 08:00. The script still checks China trading days.
+    - cron: "0 0 * * 1-5"
+
+jobs:
+  daily-report:
+    runs-on: windows-latest
+    timeout-minutes: 60
+
+    env:
+      INNO_APP_KEY: ${{ secrets.INNO_APP_KEY }}
+      INNO_APP_SECRET: ${{ secrets.INNO_APP_SECRET }}
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+      RESEND_FROM: ${{ secrets.RESEND_FROM }}
+      RESEND_TO: ${{ secrets.RESEND_TO }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Python dependencies
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pandas numpy scikit-learn matplotlib joblib reportlab requests gmssl
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install references/dm_api/dm_quant_api_client-0.2.3-py3-none-any.whl
+
+      - name: Run daily report
+        shell: pwsh
+        run: |
+          python scripts/run_cloud_daily_report.py --device cpu --out-dir data/dm_daily_master_curve_2020 --site-dir output/site
+
+      - name: Upload report artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: creditbond-ai-daily-report
+          path: |
+            data/dm_daily_master_curve_2020/reports/daily_dm_update_report.html
+            data/dm_daily_master_curve_2020/reports/daily_dm_update_report.json
+            output/daily_reports/*.pdf
+            output/site/**
+
+      - name: Deploy Cloudflare Pages
+        if: ${{ env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != '' }}
+        shell: pwsh
+        run: |
+          npx wrangler@latest pages deploy output/site --project-name creditbond-ai-daily --branch main

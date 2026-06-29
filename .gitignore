@@ -1,0 +1,43 @@
+﻿# Local secrets. Never commit these.
+scripts/set_dm_credentials.local.ps1
+scripts/set_resend_credentials.local.ps1
+.env
+.env.*
+
+# Python caches
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+
+# Temporary files
+tmp/
+*.tmp
+*.log
+
+# Local generated reports and exports
+output/
+outputs/
+reports/
+
+# Large/generated daily data. The cloud job will rebuild these.
+data/dm_daily_master_curve_2020/raw/
+data/dm_daily_master_curve_2020/processed/
+data/dm_daily_master_smoke/
+data/backtests/
+data/experiments/
+data/dm_raw/
+data/dm_processed/
+models/experiments/
+models/curve_2020_rolling_*/
+
+# Local development and tool state
+.wrangler/
+.venv/
+venv/
+
+# OS/editor noise
+Thumbs.db
+.DS_Store
+.vscode/
+.idea/
