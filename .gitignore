@@ -29,6 +29,7 @@ data/experiments/
 data/dm_raw/
 data/dm_processed/
 models/experiments/
+models/credit_curve_net/
 models/curve_2020_rolling_*/
 
 # Local development and tool state
