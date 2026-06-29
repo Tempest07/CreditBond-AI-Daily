@@ -31,6 +31,8 @@ data/dm_raw/
 data/dm_processed/
 models/experiments/
 models/credit_curve_net/
+models/credit_curve_net_ensemble/
+models/credit_curve_net_ensemble_target_feature/
 models/curve_2020_rolling_*/
 
 # Local development and tool state
