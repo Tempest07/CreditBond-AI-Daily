@@ -33,7 +33,7 @@ if (-not $env:RESEND_FROM -or $env:RESEND_FROM -like "*your-verified-domain*") {
 }
 
 if (-not (Test-Path $Pdf)) {
-    python "scripts\build_daily_report_pdf.py" "--json-report" $JsonReport "--out" $Pdf
+    python "scripts\build_daily_report_pdf.py" "--json-report" $JsonReport "--html-report" $Report "--out" $Pdf
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 }
 

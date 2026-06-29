@@ -99,7 +99,18 @@ def main() -> int:
         daily_cmd += ["--model-dir", model_dir]
     run(daily_cmd)
 
-    run([sys.executable, "scripts/build_daily_report_pdf.py", "--json-report", str(json_report), "--out", str(pdf_path)])
+    run(
+        [
+            sys.executable,
+            "scripts/build_daily_report_pdf.py",
+            "--json-report",
+            str(json_report),
+            "--html-report",
+            str(html_report),
+            "--out",
+            str(pdf_path),
+        ]
+    )
     run(
         [
             sys.executable,

@@ -1218,15 +1218,15 @@ def write_daily_html(report: dict, path: str | Path) -> None:
       border-bottom: 1px solid var(--line);
     }}
     .wrap {{
-      width: min(1080px, calc(100% - 32px));
+      width: min(1180px, calc(100% - 36px));
       margin: 0 auto;
     }}
     .hero {{
-      padding: 34px 0 26px;
+      padding: 24px 0 20px;
       display: grid;
-      grid-template-columns: 1.4fr 0.8fr;
-      gap: 28px;
-      align-items: end;
+      grid-template-columns: minmax(0, 1fr) 260px;
+      gap: 22px;
+      align-items: stretch;
     }}
     .eyebrow {{
       color: var(--blue);
@@ -1236,21 +1236,23 @@ def write_daily_html(report: dict, path: str | Path) -> None:
     }}
     h1 {{
       margin: 0;
-      font-size: 34px;
+      font-size: 30px;
       font-weight: 800;
       letter-spacing: 0;
     }}
     .hero p {{
-      margin: 14px 0 0;
+      margin: 10px 0 0;
       color: var(--muted);
-      max-width: 720px;
-      font-size: 16px;
+      max-width: 820px;
+      font-size: 15px;
     }}
     .signal-box {{
       border: 1px solid var(--line);
       background: #fbfcfd;
-      padding: 18px;
+      padding: 16px;
       border-radius: 8px;
+      display: grid;
+      align-content: center;
     }}
     .signal-label {{
       color: var(--muted);
@@ -1258,8 +1260,9 @@ def write_daily_html(report: dict, path: str | Path) -> None:
       margin-bottom: 6px;
     }}
     .signal-value {{
-      font-size: 28px;
+      font-size: 30px;
       font-weight: 800;
+      line-height: 1.15;
     }}
     .signal-value.bearish {{ color: var(--bearish); }}
     .signal-value.bullish {{ color: var(--bullish); }}
@@ -1268,23 +1271,23 @@ def write_daily_html(report: dict, path: str | Path) -> None:
     .signal-value.range {{ color: var(--range); }}
     .signal-value.neutral {{ color: var(--muted); }}
     .main {{
-      padding: 24px 0 44px;
+      padding: 18px 0 34px;
       display: grid;
-      gap: 18px;
+      gap: 14px;
     }}
     .section {{
       background: var(--paper);
       border: 1px solid var(--line);
       border-radius: 8px;
-      padding: 22px;
+      padding: 18px;
     }}
     .section h2 {{
-      margin: 0 0 14px;
-      font-size: 20px;
+      margin: 0 0 12px;
+      font-size: 18px;
       letter-spacing: 0;
     }}
     .takeaway {{
-      font-size: 18px;
+      font-size: 15.5px;
       margin: 0;
     }}
     .meta-grid {{
@@ -1294,9 +1297,9 @@ def write_daily_html(report: dict, path: str | Path) -> None:
       margin-top: 18px;
     }}
     .metric {{
-      border-top: 3px solid var(--blue);
+      border-top: 2px solid var(--blue);
       background: #f8fafb;
-      padding: 12px;
+      padding: 10px 11px;
       border-radius: 6px;
     }}
     .metric span {{
@@ -1307,7 +1310,7 @@ def write_daily_html(report: dict, path: str | Path) -> None:
     .metric strong {{
       display: block;
       margin-top: 4px;
-      font-size: 17px;
+      font-size: 16px;
     }}
     .model-grid {{
       display: grid;
@@ -1316,19 +1319,19 @@ def write_daily_html(report: dict, path: str | Path) -> None:
     }}
     .term-grid {{
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 16px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
     }}
     .model-block {{
       border: 1px solid var(--line);
       border-radius: 8px;
-      padding: 18px;
+      padding: 14px;
       background: #fbfcfd;
     }}
     .term-card {{
       border: 1px solid var(--line);
       border-radius: 8px;
-      padding: 16px;
+      padding: 14px;
       background: #fbfcfd;
     }}
     .model-head {{
@@ -1336,7 +1339,7 @@ def write_daily_html(report: dict, path: str | Path) -> None:
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
     }}
     .term-head {{
       display: flex;
@@ -1347,12 +1350,12 @@ def write_daily_html(report: dict, path: str | Path) -> None:
     }}
     .model-head h3 {{
       margin: 0;
-      font-size: 18px;
+      font-size: 16px;
       line-height: 1.35;
     }}
     .term-head h3 {{
       margin: 0;
-      font-size: 18px;
+      font-size: 20px;
     }}
     .pill {{
       display: inline-flex;
@@ -1416,11 +1419,11 @@ def write_daily_html(report: dict, path: str | Path) -> None:
       margin-top: 0;
     }}
     .spark-wrap {{
-      margin: 12px 0;
+      margin: 10px 0;
     }}
     .spark-wrap svg {{
       width: 100%;
-      height: 132px;
+      height: 116px;
       display: block;
       background: #fff;
       border: 1px solid #eef2f4;
@@ -1443,7 +1446,7 @@ def write_daily_html(report: dict, path: str | Path) -> None:
     }}
     .term-metrics {{
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 8px;
       margin-top: 10px;
     }}
@@ -1461,15 +1464,15 @@ def write_daily_html(report: dict, path: str | Path) -> None:
     .term-metrics strong {{
       display: block;
       margin-top: 2px;
-      font-size: 15px;
+      font-size: 14px;
     }}
     .spread-line {{
       margin-top: 10px;
-      padding: 10px;
+      padding: 9px 10px;
       border-radius: 6px;
       background: #f4f8fb;
       color: #31546b;
-      font-size: 14px;
+      font-size: 13px;
     }}
     .ensemble-probs {{
       margin-top: 10px;
@@ -1493,10 +1496,10 @@ def write_daily_html(report: dict, path: str | Path) -> None:
       gap: 4px;
       border: 1px solid var(--line);
       border-radius: 8px;
-      padding: 14px;
+      padding: 12px;
       background: #fbfcfd;
       color: var(--muted);
-      font-size: 14px;
+      font-size: 13px;
     }}
     .history-card strong {{
       color: var(--ink);
@@ -1525,6 +1528,9 @@ def write_daily_html(report: dict, path: str | Path) -> None:
       }}
       .section {{
         padding: 18px;
+      }}
+      .term-metrics {{
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }}
     }}
   </style>
@@ -1588,16 +1594,6 @@ def write_daily_html(report: dict, path: str | Path) -> None:
     <section class="section">
       <h2>怎么读</h2>
       <div class="note">这是一份研究辅助输出，不是自动交易指令。看空表示模型更担心收益率上行、债券价格承压；看多表示模型更倾向收益率下行；震荡表示方向优势不明显。</div>
-    </section>
-
-    <section class="section">
-      <h2>数据与文件</h2>
-      <div class="file-list">
-        <div>配置文件：{html.escape(report.get("config_path", ""))}</div>
-        <div>特征文件：{html.escape(report.get("features_path", ""))}</div>
-        <div>JSON 报告：{html.escape(report.get("json_report_path", ""))}</div>
-        <div>Markdown 报告：{html.escape(report.get("markdown_report_path", ""))}</div>
-      </div>
     </section>
   </main>
 </body>
