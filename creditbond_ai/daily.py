@@ -1195,15 +1195,18 @@ def write_daily_html(report: dict, path: str | Path) -> None:
   <title>信用债每日 AI 观察</title>
   <style>
     :root {{
-      --ink: #18202a;
-      --muted: #627080;
-      --line: #dfe5ea;
+      --ink: #141b2d;
+      --muted: #64748b;
+      --line: #d8e1ea;
       --paper: #ffffff;
-      --back: #f5f7f8;
-      --bearish: #238a62;
-      --bullish: #c74343;
-      --range: #b7812f;
-      --blue: #2f6f9f;
+      --panel: #f8fafc;
+      --back: #f3f6fa;
+      --bearish: #16865a;
+      --bullish: #d64545;
+      --range: #b98528;
+      --blue: #246f9f;
+      --blue-soft: #eaf3f8;
+      --shadow: 0 10px 28px rgba(20, 36, 56, 0.07);
     }}
     * {{ box-sizing: border-box; }}
     body {{
@@ -1216,6 +1219,7 @@ def write_daily_html(report: dict, path: str | Path) -> None:
     .top {{
       background: var(--paper);
       border-bottom: 1px solid var(--line);
+      border-top: 4px solid var(--blue);
     }}
     .wrap {{
       width: min(1180px, calc(100% - 36px));
@@ -1248,11 +1252,12 @@ def write_daily_html(report: dict, path: str | Path) -> None:
     }}
     .signal-box {{
       border: 1px solid var(--line);
-      background: #fbfcfd;
+      background: var(--panel);
       padding: 16px;
       border-radius: 8px;
       display: grid;
       align-content: center;
+      box-shadow: 0 8px 22px rgba(20, 36, 56, 0.05);
     }}
     .signal-label {{
       color: var(--muted);
@@ -1280,6 +1285,7 @@ def write_daily_html(report: dict, path: str | Path) -> None:
       border: 1px solid var(--line);
       border-radius: 8px;
       padding: 18px;
+      box-shadow: var(--shadow);
     }}
     .section h2 {{
       margin: 0 0 12px;
@@ -1298,7 +1304,7 @@ def write_daily_html(report: dict, path: str | Path) -> None:
     }}
     .metric {{
       border-top: 2px solid var(--blue);
-      background: #f8fafb;
+      background: var(--panel);
       padding: 10px 11px;
       border-radius: 6px;
     }}
@@ -1326,13 +1332,15 @@ def write_daily_html(report: dict, path: str | Path) -> None:
       border: 1px solid var(--line);
       border-radius: 8px;
       padding: 14px;
-      background: #fbfcfd;
+      background: #fbfdff;
+      box-shadow: 0 5px 16px rgba(20, 36, 56, 0.045);
     }}
     .term-card {{
       border: 1px solid var(--line);
       border-radius: 8px;
       padding: 14px;
-      background: #fbfcfd;
+      background: #fbfdff;
+      box-shadow: 0 5px 16px rgba(20, 36, 56, 0.045);
     }}
     .model-head {{
       display: flex;
@@ -1370,8 +1378,8 @@ def write_daily_html(report: dict, path: str | Path) -> None:
     }}
     .pill.bearish {{ background: var(--bearish); }}
     .pill.bullish {{ background: var(--bullish); }}
-    .pill.tilt-bearish {{ background: #dff2e9; color: #176c4a; border: 1px solid #afdcc8; }}
-    .pill.tilt-bullish {{ background: #f8dddd; color: #9d2f2f; border: 1px solid #efb8b8; }}
+    .pill.tilt-bearish {{ background: #e4f5ed; color: #126b47; border: 1px solid #b9e4cf; }}
+    .pill.tilt-bullish {{ background: #fde7e7; color: #ad3232; border: 1px solid #f3c0c0; }}
     .pill.range {{ background: var(--range); }}
     .pill.neutral {{ background: var(--muted); }}
     .prob-list {{
@@ -1387,7 +1395,7 @@ def write_daily_html(report: dict, path: str | Path) -> None:
     }}
     .prob-track {{
       height: 10px;
-      background: #e8edf1;
+      background: #e7edf3;
       border-radius: 999px;
       overflow: hidden;
     }}
@@ -1426,7 +1434,7 @@ def write_daily_html(report: dict, path: str | Path) -> None:
       height: 116px;
       display: block;
       background: #fff;
-      border: 1px solid #eef2f4;
+      border: 1px solid #e7edf3;
       border-radius: 6px;
     }}
     .spark-dates {{
@@ -1452,7 +1460,7 @@ def write_daily_html(report: dict, path: str | Path) -> None:
     }}
     .term-metrics div {{
       background: #fff;
-      border: 1px solid #edf1f4;
+      border: 1px solid #e7edf3;
       border-radius: 6px;
       padding: 9px;
     }}
@@ -1470,14 +1478,14 @@ def write_daily_html(report: dict, path: str | Path) -> None:
       margin-top: 10px;
       padding: 9px 10px;
       border-radius: 6px;
-      background: #f4f8fb;
-      color: #31546b;
+      background: var(--blue-soft);
+      color: #255873;
       font-size: 13px;
     }}
     .ensemble-probs {{
       margin-top: 10px;
       padding: 10px;
-      border: 1px solid #edf1f4;
+      border: 1px solid #e7edf3;
       border-radius: 6px;
       background: #ffffff;
     }}
@@ -1497,9 +1505,10 @@ def write_daily_html(report: dict, path: str | Path) -> None:
       border: 1px solid var(--line);
       border-radius: 8px;
       padding: 12px;
-      background: #fbfcfd;
+      background: #fbfdff;
       color: var(--muted);
       font-size: 13px;
+      box-shadow: 0 5px 16px rgba(20, 36, 56, 0.04);
     }}
     .history-card strong {{
       color: var(--ink);
@@ -1508,9 +1517,9 @@ def write_daily_html(report: dict, path: str | Path) -> None:
     .note {{
       border-left: 4px solid var(--range);
       padding: 12px 14px;
-      background: #fff9ef;
+      background: #fff7e8;
       border-radius: 6px;
-      color: #4a3a24;
+      color: #493622;
     }}
     .file-list {{
       display: grid;

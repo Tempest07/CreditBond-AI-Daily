@@ -89,7 +89,7 @@ def make_print_html(source_html: Path, target_html: Path) -> None:
     .signal-value { font-size: 22px !important; }
     .muted { font-size: 11px !important; line-height: 1.45 !important; }
     .main { padding: 10px 0 0 !important; gap: 8px !important; }
-    .section { padding: 11px !important; border-radius: 6px !important; }
+    .section { padding: 11px !important; border-radius: 6px !important; box-shadow: none !important; }
     .section h2 { font-size: 14px !important; margin-bottom: 8px !important; }
     .takeaway { font-size: 11.5px !important; line-height: 1.5 !important; }
     .meta-grid { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; gap: 7px !important; margin-top: 9px !important; }
@@ -99,7 +99,7 @@ def make_print_html(source_html: Path, target_html: Path) -> None:
     .term-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 8px !important; }
     .model-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 8px !important; }
     .history-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 8px !important; }
-    .term-card, .model-block { padding: 10px !important; border-radius: 6px !important; }
+    .term-card, .model-block { padding: 10px !important; border-radius: 6px !important; box-shadow: none !important; }
     .term-head h3 { font-size: 15px !important; }
     .model-head h3 { font-size: 12px !important; }
     .pill { font-size: 10px !important; min-width: 44px !important; padding: 3px 7px !important; }
@@ -114,7 +114,7 @@ def make_print_html(source_html: Path, target_html: Path) -> None:
     .prob-list { gap: 6px !important; }
     .prob-row { grid-template-columns: 34px 1fr 42px !important; gap: 6px !important; font-size: 10.5px !important; }
     .prob-track { height: 7px !important; }
-    .history-card { padding: 8px !important; font-size: 10.5px !important; }
+    .history-card { padding: 8px !important; font-size: 10.5px !important; box-shadow: none !important; }
     .history-card strong { font-size: 11.5px !important; }
     .note, .file-list { font-size: 10.5px !important; line-height: 1.5 !important; }
     .term-card, .model-block, .metric, .history-row {
