@@ -27,6 +27,13 @@ MODEL_DIRS = [
 ]
 
 
+def configure_console_encoding() -> None:
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if callable(reconfigure):
+            reconfigure(encoding="utf-8", errors="replace")
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run the cloud-friendly daily credit-bond AI report pipeline.")
     parser.add_argument("--today", default=date.today().isoformat())
@@ -49,6 +56,7 @@ def run(cmd: list[str]) -> None:
 
 
 def main() -> int:
+    configure_console_encoding()
     args = parse_args()
     today = date.fromisoformat(args.today)
     holidays = load_holidays(args.holiday_file)
