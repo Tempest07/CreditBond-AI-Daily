@@ -24,6 +24,20 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
+      - name: Validate required secrets
+        shell: pwsh
+        run: |
+          $missing = @()
+          if ([string]::IsNullOrWhiteSpace($env:INNO_APP_KEY)) { $missing += "INNO_APP_KEY" }
+          if ([string]::IsNullOrWhiteSpace($env:INNO_APP_SECRET)) { $missing += "INNO_APP_SECRET" }
+          if ([string]::IsNullOrWhiteSpace($env:RESEND_API_KEY)) { $missing += "RESEND_API_KEY" }
+          if ([string]::IsNullOrWhiteSpace($env:RESEND_FROM)) { $missing += "RESEND_FROM" }
+          if ($missing.Count -gt 0) {
+            Write-Error ("Missing required GitHub Actions secrets: " + ($missing -join ", "))
+            exit 1
+          }
+          Write-Host "Required secret check passed."
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
