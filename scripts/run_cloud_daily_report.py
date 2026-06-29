@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import subprocess
 import sys
@@ -25,6 +26,7 @@ MODEL_DIRS = [
     "models/curve_2020_AAAp20Y_h5/01_full_features/tcn",
     "models/curve_2020_AAAp20Y_h5/01_full_features/transformer",
 ]
+REQUIRED_TENORS = ("3年", "5年", "10年", "20年")
 
 
 def configure_console_encoding() -> None:
@@ -42,7 +44,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--out-dir", default="data/dm_daily_master_curve_2020")
     parser.add_argument("--site-dir", default="output/site")
     parser.add_argument("--device", choices=["auto", "cpu", "cuda"], default="cpu")
-    parser.add_argument("--start-date", default="")
+    parser.add_argument("--start-date", default="2020-01-01")
     parser.add_argument("--full-refresh", action="store_true")
     parser.add_argument("--skip-fetch", action="store_true")
     parser.add_argument("--skip-email", action="store_true")
@@ -53,6 +55,53 @@ def parse_args() -> argparse.Namespace:
 def run(cmd: list[str]) -> None:
     print("运行：", " ".join(cmd))
     subprocess.run(cmd, cwd=ROOT, check=True)
+
+
+def validate_report_has_model_data(json_report: Path) -> None:
+    report = json.loads(json_report.read_text(encoding="utf-8"))
+    tenors = {
+        str(item.get("label", "")): item
+        for item in (report.get("market_snapshot") or {}).get("tenors", [])
+    }
+    issues: list[str] = []
+    for label in REQUIRED_TENORS:
+        tenor = tenors.get(label)
+        if not tenor:
+            issues.append(f"{label} 期限没有出现在 market_snapshot。")
+            continue
+        if not tenor.get("available"):
+            issues.append(f"{label} 期限没有可用收益率曲线数据。")
+        ensemble = tenor.get("ensemble_prediction") or {}
+        if int(ensemble.get("model_count") or 0) <= 0:
+            issues.append(f"{label} 期限没有可用模型预测结果。")
+
+    ok_predictions = [item for item in report.get("predictions", []) if item.get("ok")]
+    if not ok_predictions:
+        issues.append("全部模型预测均失败。")
+
+    if not issues:
+        print(f"日报数据校验通过：{len(ok_predictions)} 个模型预测可用，四个期限曲线均可用。")
+        return
+
+    print("日报数据校验失败，以下是关键诊断信息：")
+    print(f"- 特征形状：{report.get('features_shape')}")
+    print(f"- 数据范围：{report.get('data_start')} 至 {report.get('data_end')}")
+    print(f"- 可用模型预测数：{len(ok_predictions)} / {len(report.get('predictions', []))}")
+    curve_rows = [row for row in report.get("fetch", []) if row.get("source") == "curve_func"]
+    print(f"- 曲线抓取记录数：{len(curve_rows)}")
+    for row in curve_rows:
+        print(
+            "  曲线："
+            f"{row.get('curve_name')} term={row.get('curve_term')} "
+            f"new_rows={row.get('new_rows')} total_rows={row.get('total_rows')} "
+            f"file={row.get('output_file')}"
+        )
+    if not curve_rows:
+        print("- 没有任何 curve_func 抓取记录，请检查配置是否被云端正确读取。")
+    for item in report.get("predictions", []):
+        if not item.get("ok"):
+            print(f"  模型失败：{item.get('model_dir')} -> {item.get('error')}")
+    raise RuntimeError("日报缺少曲线或模型数据，已停止发送空日报：" + "；".join(issues))
 
 
 def main() -> int:
@@ -98,6 +147,7 @@ def main() -> int:
     for model_dir in MODEL_DIRS:
         daily_cmd += ["--model-dir", model_dir]
     run(daily_cmd)
+    validate_report_has_model_data(json_report)
 
     run(
         [

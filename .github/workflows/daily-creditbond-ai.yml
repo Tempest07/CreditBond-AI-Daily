@@ -49,7 +49,7 @@ jobs:
         shell: pwsh
         run: |
           python -m pip install --upgrade pip
-          python -m pip install pandas numpy scikit-learn matplotlib joblib reportlab requests gmssl
+          python -m pip install "pandas>=2.1,<3" "numpy>=1.26,<3" "scikit-learn>=1.3,<2" "matplotlib>=3.8,<4" "joblib>=1.3,<2" "reportlab>=4,<6" "requests>=2.31,<3" "gmssl>=3.2,<4"
           python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
           python -m pip install references/dm_api/dm_quant_api_client-0.2.3-py3-none-any.whl
 
@@ -59,6 +59,7 @@ jobs:
           python scripts/run_cloud_daily_report.py --device cpu --out-dir data/dm_daily_master_curve_2020 --site-dir output/site
 
       - name: Upload report artifacts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: creditbond-ai-daily-report
