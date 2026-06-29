@@ -337,6 +337,26 @@ def _render_report(summary: pd.DataFrame, diagnostics: list[str], out_path: Path
         )
 
     diag_html = "".join(f"<li>{_html_escape(note)}</li>" for note in diagnostics)
+    beginner_cards = f"""
+      <article class="explain-card">
+        <span>1</span>
+        <h3>先看 ECE：概率有没有骗人</h3>
+        <p>ECE 可以理解成“模型自信程度和真实命中率之间的偏差”。如果模型经常说 80% 把握，但实际只对 50%，ECE 就会很高。越低越好，0% 是理想状态。</p>
+        <b>本次自研网络：{_fmt_pct(custom_raw_ece)} -> {_fmt_pct(custom_cal_ece)}</b>
+      </article>
+      <article class="explain-card">
+        <span>2</span>
+        <h3>再看宏 F1：方向识别是否均衡</h3>
+        <p>宏 F1 会同时考察看空、看多、震荡三类，不会因为模型只会猜“震荡”就给它太高评价。越高越好，更适合看这个三分类问题。</p>
+        <b>本次自研网络：{_fmt_pct(custom_raw_f1)} -> {_fmt_pct(custom_cal_guard_f1)}</b>
+      </article>
+      <article class="explain-card">
+        <span>3</span>
+        <h3>最后看代理收益：只是研究模拟</h3>
+        <p>代理收益用“收益率变化 × 久期方向”粗略估算，不含真实组合、流动性、交易成本和持仓约束。它能帮助比较模型，但不能当作真实收益承诺。</p>
+        <b>本次自研网络：{_fmt_pct(custom_raw_ret)} -> {_fmt_pct(custom_cal_guard_ret)}</b>
+      </article>
+    """
     html_text = f"""<!doctype html>
 <html lang="zh-CN">
 <head>
@@ -362,6 +382,16 @@ def _render_report(summary: pd.DataFrame, diagnostics: list[str], out_path: Path
     .metrics div {{ background:var(--soft); border-top:3px solid var(--blue); border-radius:6px; padding:10px 12px; }}
     .metrics span {{ display:block; color:var(--muted); font-size:12px; }}
     .metrics b {{ display:block; margin-top:5px; font-size:18px; }}
+    .guide-grid {{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }}
+    .explain-card {{ background:#fff; border:1px solid var(--line); border-radius:8px; padding:16px; box-shadow:0 8px 22px rgba(35,48,66,.05); }}
+    .explain-card span {{ display:inline-grid; place-items:center; width:28px; height:28px; border-radius:50%; background:#e9eef7; color:var(--blue); font-weight:800; }}
+    .explain-card h3 {{ margin:10px 0 6px; font-size:18px; }}
+    .explain-card p {{ margin:0; color:var(--muted); font-size:14px; line-height:1.65; }}
+    .explain-card b {{ display:block; margin-top:10px; color:var(--red); font-size:16px; }}
+    .read-path {{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; }}
+    .read-path div {{ border-left:3px solid var(--blue); background:var(--soft); border-radius:6px; padding:10px 12px; }}
+    .read-path span {{ display:block; color:var(--muted); font-size:12px; }}
+    .read-path b {{ display:block; margin-top:5px; }}
     .card-grid {{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; }}
     .card {{ padding:16px; }}
     .card-head {{ display:flex; justify-content:space-between; gap:8px; align-items:start; }}
@@ -378,7 +408,7 @@ def _render_report(summary: pd.DataFrame, diagnostics: list[str], out_path: Path
     .diagnosis {{ margin:0; padding-left:22px; line-height:1.8; }}
     code {{ color:#21314a; background:#f1f4f7; padding:2px 5px; border-radius:4px; }}
     @media (max-width:900px) {{
-      .card-grid {{ grid-template-columns:1fr; }}
+      .card-grid,.guide-grid,.read-path {{ grid-template-columns:1fr; }}
       .metrics {{ grid-template-columns:repeat(2,minmax(0,1fr)); }}
       h1 {{ font-size:30px; }}
     }}
@@ -388,6 +418,7 @@ def _render_report(summary: pd.DataFrame, diagnostics: list[str], out_path: Path
       .wrap {{ width:100%; }}
       h1 {{ font-size:26px; }}
       .section,.card {{ box-shadow:none; break-inside:avoid; }}
+      .guide-grid {{ grid-template-columns:repeat(3,minmax(0,1fr)); }}
       .card-grid {{ grid-template-columns:repeat(2,minmax(0,1fr)); }}
       th,td {{ font-size:10px; padding:6px; }}
     }}
@@ -406,10 +437,22 @@ def _render_report(summary: pd.DataFrame, diagnostics: list[str], out_path: Path
       <h2>一句话结论</h2>
       <p class="takeaway">{_html_escape(conclusion)}</p>
       <div class="metrics">
-        <div><span>自研原始 ECE</span><b>{_fmt_pct(custom_raw_ece)}</b></div>
-        <div><span>自研校准后 ECE</span><b>{_fmt_pct(custom_cal_ece)}</b></div>
-        <div><span>自研原始宏 F1</span><b>{_fmt_pct(custom_raw_f1)}</b></div>
-        <div><span>自研校准加保护宏 F1</span><b>{_fmt_pct(custom_cal_guard_f1)}</b></div>
+        <div><span>概率偏差 ECE，越低越好</span><b>{_fmt_pct(custom_raw_ece)} -> {_fmt_pct(custom_cal_ece)}</b></div>
+        <div><span>方向识别 宏 F1，越高越好</span><b>{_fmt_pct(custom_raw_f1)} -> {_fmt_pct(custom_cal_guard_f1)}</b></div>
+        <div><span>研究代理收益</span><b>{_fmt_pct(custom_raw_ret)} -> {_fmt_pct(custom_cal_guard_ret)}</b></div>
+        <div><span>验证区间</span><b>{date_start} 至 {date_end}</b></div>
+      </div>
+    </section>
+    <section class="guide-grid">
+      {beginner_cards}
+    </section>
+    <section class="section">
+      <h2>新手阅读顺序</h2>
+      <div class="read-path">
+        <div><span>第一步</span><b>看 ECE 是否下降</b></div>
+        <div><span>第二步</span><b>看宏 F1 是否上升</b></div>
+        <div><span>第三步</span><b>看收益有没有被牺牲太多</b></div>
+        <div><span>第四步</span><b>看分期限是否稳定</b></div>
       </div>
     </section>
     <section><div class="card-grid">{''.join(cards)}</div></section>
@@ -438,6 +481,7 @@ def _render_report(summary: pd.DataFrame, diagnostics: list[str], out_path: Path
     <section class="section">
       <h2>口径</h2>
       <p class="muted">校准搜索包括 <code>temperature</code>、<code>prior_blend</code>、<code>range_bias</code> 和 <code>bullish_bias</code>。校准只用前半段样本拟合，后半段只做验证。选择校准参数时加入最低方向活跃约束，避免纯校准为了降低 ECE 而全部压成震荡。校准加保护是在校准后的概率上重新搜索并锁定保护层阈值。</p>
+      <p class="muted"><b>术语翻译：</b> ECE = 概率可信度误差，越低越好；宏 F1 = 看空/看多/震荡三类的均衡识别分数，越高越好；温度 = 给模型概率“降温”的幅度，越大通常越不自信；收缩 = 把模型概率向历史类别分布拉回一点；震荡偏置 = 让模型更谨慎、更愿意承认震荡。</p>
     </section>
   </main>
 </body>
