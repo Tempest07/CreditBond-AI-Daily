@@ -3,8 +3,9 @@
 on:
   workflow_dispatch:
   schedule:
-    # UTC 00:00 = Beijing 08:00. The script still checks China trading days.
-    - cron: "0 0 * * 1-5"
+    # UTC 23:56 Sunday-Thursday = Beijing 07:56 Monday-Friday.
+    # The script still checks China trading days.
+    - cron: "56 23 * * 0-4"
 
 jobs:
   daily-report:
