@@ -29,6 +29,8 @@ data/experiments/
 data/model_arena/
 data/intraday/
 data/intraday_probe/
+data/intraday_live/
+data/market_context/
 data/dm_raw/
 data/dm_processed/
 models/experiments/

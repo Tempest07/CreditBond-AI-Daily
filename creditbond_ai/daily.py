@@ -859,6 +859,89 @@ def _fmt_float(value: float | None, digits: int = 3) -> str:
     return f"{float(value):.{digits}f}"
 
 
+def load_market_context_summary(market_context_dir: str | Path | None) -> dict:
+    if not market_context_dir:
+        return {}
+    base = Path(market_context_dir)
+    path = base if base.is_file() else base / "features" / "market_context_features.json"
+    if not path.exists():
+        return {"missing": True, "path": str(path)}
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        return {"error": str(exc), "path": str(path)}
+
+
+def _market_context_block(report: dict) -> str:
+    context = report.get("market_context") or {}
+    if not context:
+        return ""
+    if context.get("missing") or context.get("error"):
+        message = context.get("error") or f"未找到市场背景文件：{context.get('path', '')}"
+        return f"""
+        <section class="section">
+          <h2>市场背景</h2>
+          <p class="muted">{html.escape(str(message))}</p>
+        </section>
+        """
+    tone = str(context.get("tone", "range"))
+    display_signal = str(context.get("display_signal", "震荡"))
+    score = context.get("pressure_score")
+    intraday = context.get("intraday") or {}
+    quote = context.get("credit_quote") or {}
+    supply = context.get("primary_supply") or {}
+    sentiment = context.get("money_sentiment") or {}
+    dr007 = next(
+        (item for item in context.get("money_market", []) if str(item.get("instrument_code", "")).upper() == "DR007"),
+        {},
+    )
+    pressure_rows = []
+    for item in context.get("pressure_parts", []):
+        pressure_rows.append(
+            f"""
+            <div class="history-card">
+              <span>{html.escape(str(item.get("name", "")))}</span>
+              <strong>{_fmt_float(float(item.get("score", 0.0)), 1)}</strong>
+            </div>
+            """
+        )
+    diagnostics = "".join(f"<li>{html.escape(str(item))}</li>" for item in context.get("diagnostics", [])[:6])
+    return f"""
+    <section class="section">
+      <h2>市场背景：资金、供给、报价与盘中压力</h2>
+      <div class="context-head">
+        <div>
+          <span>日内市场信号</span>
+          <strong class="{html.escape(tone)}">{html.escape(display_signal)}</strong>
+        </div>
+        <div>
+          <span>市场压力分</span>
+          <strong>{_fmt_float(float(score), 1)}</strong>
+        </div>
+        <div>
+          <span>DR007 历史分位</span>
+          <strong>{_fmt_prob(dr007.get("percentile"))}</strong>
+        </div>
+        <div>
+          <span>信用债报价样本</span>
+          <strong>{html.escape(str(quote.get("quote_count", 0)))} 条</strong>
+        </div>
+      </div>
+      <p class="muted">{html.escape(str(context.get("plain", "")))}</p>
+      <div class="meta-grid">
+        <div class="metric"><span>国债活跃券日内</span><strong>{_fmt_bp(intraday.get("tbond_avg_yield_change_bp"))}</strong></div>
+        <div class="metric"><span>国债期货日内</span><strong>{_fmt_prob(intraday.get("future_avg_price_change_pct"))}</strong></div>
+        <div class="metric"><span>资金情绪分位</span><strong>{_fmt_prob(sentiment.get("percentile"))}</strong></div>
+        <div class="metric"><span>一级发行规模分位</span><strong>{_fmt_prob(supply.get("amount_percentile"))}</strong></div>
+      </div>
+      <div class="history-grid" style="margin-top: 14px;">
+        {"".join(pressure_rows)}
+      </div>
+      <ul class="context-list">{diagnostics}</ul>
+    </section>
+    """
+
+
 def _tone_from_prediction(prediction: str) -> str:
     text = str(prediction)
     if "偏空" in text:
@@ -1514,6 +1597,37 @@ def write_daily_html(report: dict, path: str | Path) -> None:
       color: var(--ink);
       font-size: 16px;
     }}
+    .context-head {{
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 12px;
+    }}
+    .context-head div {{
+      background: var(--panel);
+      border: 1px solid #e7edf3;
+      border-radius: 8px;
+      padding: 12px;
+    }}
+    .context-head span {{
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+    }}
+    .context-head strong {{
+      display: block;
+      margin-top: 5px;
+      font-size: 18px;
+    }}
+    .context-head strong.bearish {{ color: var(--bearish); }}
+    .context-head strong.bullish {{ color: var(--bullish); }}
+    .context-head strong.range {{ color: var(--range); }}
+    .context-list {{
+      margin: 12px 0 0;
+      padding-left: 20px;
+      color: var(--muted);
+      line-height: 1.8;
+    }}
     .note {{
       border-left: 4px solid var(--range);
       padding: 12px 14px;
@@ -1529,7 +1643,7 @@ def write_daily_html(report: dict, path: str | Path) -> None:
       overflow-wrap: anywhere;
     }}
     @media (max-width: 780px) {{
-      .hero, .model-grid, .meta-grid, .term-grid, .history-grid {{
+      .hero, .model-grid, .meta-grid, .term-grid, .history-grid, .context-head {{
         grid-template-columns: 1fr;
       }}
       h1 {{
@@ -1570,6 +1684,8 @@ def write_daily_html(report: dict, path: str | Path) -> None:
         <div class="metric"><span>特征数量</span><strong>{html.escape(str(report.get("features_shape", ["", ""])[1]))}</strong></div>
       </div>
     </section>
+
+    {_market_context_block(report)}
 
     <section class="section">
       <h2>综合概率</h2>
@@ -1673,6 +1789,7 @@ def run_daily_dm_update(
     base_url: str | None = None,
     timeout: int = 30,
     strict_predictions: bool = False,
+    market_context_dir: str | Path | None = None,
 ) -> dict:
     end_date = end_date or date.today().isoformat()
     paths = build_daily_paths(out_dir, raw_dir=raw_dir, processed_dir=processed_dir, report_dir=report_dir)
@@ -1740,6 +1857,7 @@ def run_daily_dm_update(
 
     valid_prediction_results = [item["result"] for item in prediction_rows if item.get("ok")]
     market_snapshot = build_market_snapshot(features, valid_prediction_results)
+    market_context = load_market_context_summary(market_context_dir)
 
     report = {
         "run_date": date.today().isoformat(),
@@ -1762,6 +1880,7 @@ def run_daily_dm_update(
         "data_end": pd.to_datetime(features["date"]).max().strftime("%Y-%m-%d") if not features.empty else "",
         "predictions": prediction_rows,
         "market_snapshot": market_snapshot,
+        "market_context": market_context,
     }
     with paths.json_report_path.open("w", encoding="utf-8") as fh:
         json.dump(report, fh, ensure_ascii=False, indent=2)

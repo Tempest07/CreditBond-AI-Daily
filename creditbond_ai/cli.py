@@ -461,6 +461,7 @@ def build_parser() -> argparse.ArgumentParser:
     daily.add_argument("--base-url", default=None)
     daily.add_argument("--timeout", type=int, default=30)
     daily.add_argument("--strict-predictions", action="store_true")
+    daily.add_argument("--market-context-dir", default=None)
 
     position_bt = sub.add_parser("position-backtest", help="Backtest a simple tenor-level position rule from saved model test predictions.")
     position_bt.add_argument("--features", required=True)
@@ -941,6 +942,7 @@ def main(argv: list[str] | None = None) -> int:
             base_url=args.base_url,
             timeout=args.timeout,
             strict_predictions=args.strict_predictions,
+            market_context_dir=args.market_context_dir,
         )
         print(json.dumps(
             {

@@ -36,6 +36,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--tbond-active-codes", default=",".join(TBOND_ACTIVE_CODES))
     parser.add_argument("--treasury-futures-codes", default=",".join(TREASURY_FUTURES_CODES))
     parser.add_argument("--key-tenors", default="2,5,10,30")
+    parser.add_argument("--timeout", type=int, default=30)
     return parser.parse_args()
 
 
@@ -60,13 +61,37 @@ def _safe_fetch(name: str, fetcher: Callable[[], pd.DataFrame], out_dir: Path) -
     return row
 
 
+def _fetch_bond_bars_chunked(
+    codes: list[str],
+    snapshot_date: str,
+    kline_type: int,
+    client,
+    chunk_size: int = 5,
+) -> pd.DataFrame:
+    frames = []
+    for index in range(0, len(codes), chunk_size):
+        chunk = codes[index : index + chunk_size]
+        if not chunk:
+            continue
+        frames.append(
+            fetch_bond_bars(
+                chunk,
+                start_datetime=snapshot_date,
+                end_datetime=snapshot_date,
+                kline_type=kline_type,
+                client=client,
+            )
+        )
+    return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
+
+
 def main() -> int:
     args = parse_args()
     snapshot_date = str(args.date)
     out_dir = Path(args.out_dir) if args.out_dir else ROOT / "data" / "intraday" / snapshot_date
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    client = create_dm_client(timeout=30)
+    client = create_dm_client(timeout=args.timeout)
     active_codes = _split_csv(args.tbond_active_codes)
     futures_codes = _split_csv(args.treasury_futures_codes)
     key_tenors = _split_int_csv(args.key_tenors)
@@ -75,13 +100,7 @@ def main() -> int:
     summary.append(
         _safe_fetch(
             "tbond_active_bars",
-            lambda: fetch_bond_bars(
-                active_codes,
-                start_datetime=snapshot_date,
-                end_datetime=snapshot_date,
-                kline_type=args.kline_type,
-                client=client,
-            ),
+            lambda: _fetch_bond_bars_chunked(active_codes, snapshot_date=snapshot_date, kline_type=args.kline_type, client=client),
             out_dir,
         )
     )
