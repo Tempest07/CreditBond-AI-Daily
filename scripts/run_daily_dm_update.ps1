@@ -6,7 +6,6 @@ param(
     [string]$OutDir = 'data\dm_daily',
     [string]$Device = 'cuda',
     [string]$ModelReadyMaxMissingRatio = '0.2',
-    [string]$MarketContextDir = '',
     [int]$Timeout = 60
 )
 
@@ -54,9 +53,6 @@ if ($FullRefresh) {
 }
 if ($SkipFetch) {
     $ArgsList += '--skip-fetch'
-}
-if ($MarketContextDir) {
-    $ArgsList += @('--market-context-dir', $MarketContextDir)
 }
 
 python @ArgsList
